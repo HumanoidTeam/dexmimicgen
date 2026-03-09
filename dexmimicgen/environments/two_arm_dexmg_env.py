@@ -134,7 +134,8 @@ class TwoArmDexMGEnv(TwoArmEnv):
         """
         xml_str = super().edit_model_xml(xml_str)
 
-        path = os.path.split(dexmimicgen.__file__)[0]
+        # use absolute paths so we can resolve to pixi envs
+        path = os.path.dirname(os.path.abspath(dexmimicgen.__file__))
         path_split = path.split("/")
 
         # replace mesh and texture file paths
@@ -148,6 +149,10 @@ class TwoArmDexMGEnv(TwoArmEnv):
         for elem in all_elements:
             old_path = elem.get("file")
             if old_path is None:
+                continue
+
+            # Skip paths that already point to an existing file
+            if os.path.isabs(old_path) and os.path.exists(old_path):
                 continue
 
             old_path_split = old_path.split("/")
